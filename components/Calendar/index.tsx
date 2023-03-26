@@ -7,6 +7,7 @@ import { useState } from 'react'
 import interactionPlugin from '@fullcalendar/interaction'
 import dayGridPlugin from '@fullcalendar/daygrid'
 import FullCalendar from '@fullcalendar/react'
+
 import CalendarModal from './Modal'
 import FormatDate from '@/utils/functions/FormatDate'
 import generateTimeSlots from '@/utils/functions/TimeSlots'
