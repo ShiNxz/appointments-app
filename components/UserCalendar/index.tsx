@@ -1,23 +1,17 @@
-import type { DateSelectArg } from '@fullcalendar/core'
-import type { IAvailableDate } from '@/utils/models/User'
+import type { DateSelectArg, EventContentArg } from '@fullcalendar/core'
+import type { IAppointments, ISpecialDate, IWeeklyHours } from '@/utils/models/User'
 
 import { useState } from 'react'
 
 import FullCalendar from '@fullcalendar/react'
 import interactionPlugin from '@fullcalendar/interaction'
 import dayGridPlugin from '@fullcalendar/daygrid'
+import GenerateWorkingDates from '@/utils/functions/GenerateWorkingDates'
 
 import CalendarModal from './Modal'
-import FormatDate from '@/utils/functions/FormatDate'
+import DaysSettings from './DaysSettings'
 
-const renderEventContent = (eventContent: any) => (
-	<>
-		<b>{eventContent.timeText}</b>
-		<i className='p-2'>{eventContent.event.title}</i>
-	</>
-)
-
-const TimesCalendar = ({ avDates, mutate }: IProps) => {
+const TimesCalendar = ({ weeklyHours, specialDates, appointments, mutate }: IProps) => {
 	const [selectedDate, setSelectedDate] = useState<Date | null>(null)
 
 	const handleDateSelect = (arg: DateSelectArg) => {
@@ -25,17 +19,15 @@ const TimesCalendar = ({ avDates, mutate }: IProps) => {
 		setSelectedDate(arg.start)
 	}
 
-	const newTimes = avDates.map((avDate) => ({
-		title: `${avDate.end} - ${avDate.start}`,
-		date: FormatDate(new Date(avDate.date)),
-	}))
+	const workingDays = GenerateWorkingDates(weeklyHours, specialDates, appointments)
 
 	return (
 		<>
+			<DaysSettings mutate={mutate} />
 			<FullCalendar
 				initialView='dayGridMonth'
 				plugins={[dayGridPlugin, interactionPlugin]}
-				events={newTimes}
+				events={workingDays}
 				selectable={true}
 				headerToolbar={{
 					center: '',
@@ -45,11 +37,8 @@ const TimesCalendar = ({ avDates, mutate }: IProps) => {
 				buttonText={{
 					today: 'היום',
 				}}
-				eventMaxStack={1}
-				eventContent={renderEventContent}
-				locale={'he'}
+				locale='he'
 				direction='rtl'
-				timeZone='Europe/Jerusalem'
 				select={handleDateSelect}
 				viewClassNames={'bg-white'}
 			/>
@@ -63,8 +52,10 @@ const TimesCalendar = ({ avDates, mutate }: IProps) => {
 }
 
 interface IProps {
-	avDates: IAvailableDate[]
 	mutate: () => Promise<void>
+	weeklyHours: IWeeklyHours[]
+	specialDates: ISpecialDate[]
+	appointments: IAppointments[]
 }
 
 export default TimesCalendar

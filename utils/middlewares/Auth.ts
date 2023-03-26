@@ -1,7 +1,6 @@
 import { NextApiRequest, NextApiResponse } from 'next'
 import jwt from 'jsonwebtoken'
 import User, { IUser } from '@/models/User'
-import Appointment from '../models/Appointment'
 
 const AuthMiddleware = (req: NextApiRequest, res: NextApiResponse) => {
 	return new Promise(async (resolve, reject) => {
@@ -10,10 +9,7 @@ const AuthMiddleware = (req: NextApiRequest, res: NextApiResponse) => {
 
 		let decoded = jwt.verify(req.cookies.token, process.env.JWT_SECRET as string) as IDecodedUser
 
-		const user = await User.findOne({ _id: decoded._id }).limit(1).populate({
-			path: 'dates.appointments.appointment',
-			model: Appointment,
-		})
+		const user = await User.findOne({ _id: decoded._id })
 
 		if (!user)
 			return reject(res.status(401).json({ success: false, error: 'לא נמצא משתמש קיים עם הפרטים שנרשמו!' }))

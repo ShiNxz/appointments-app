@@ -1,10 +1,15 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
+import type { Times } from '@/utils/functions/TimeSlots'
 import db from '@/utils/db'
 import User from '@/utils/models/User'
-import Appointment from '@/utils/models/Appointment'
-import type { Times } from '@/utils/functions/TimeSlots'
 import FormatDate from '@/utils/functions/FormatDate'
-import { C } from '@fullcalendar/core/internal-common'
+
+const getTimestamp = (date: Date, timeStr: string) => {
+	const [hours, minutes] = timeStr.split(':').map((n) => parseInt(n))
+	const datetime = new Date(date)
+	datetime.setHours(hours, minutes, 0, 0)
+	return datetime.getTime()
+}
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 	await db()
@@ -13,10 +18,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 
 	switch (method) {
 		case 'GET': {
-			const users = await User.find({}).populate({
-				path: 'dates.appointments.appointment',
-				model: Appointment,
-			})
+			const users = await User.find({})
 
 			return res.status(200).json({ success: true, users })
 		}
@@ -27,24 +29,40 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 			const user = await User.findOne({ _id: userId })
 			if (!user) return res.status(404).json({ success: false, message: 'המשתמש לא נמצא!' })
 
-			const timeIndex = user.dates.findIndex(
-				(d) =>
-					FormatDate(new Date(d.date)) === FormatDate(new Date(date)) &&
-					!d.appointments.find((a) => a.start === time.start)
-			)
+			if (user.appointments.find((a) => a.date === FormatDate(new Date(date)) && a.start === time.start))
+				return res.status(400).json({ success: false, message: 'הזמן תפוס!' })
 
-			if (timeIndex === -1) return res.status(404).json({ success: false, message: 'התאריך לא נמצא!' })
+			const isSpecialDate =
+				user.specialDates.find((d) => {
+					const dayMatches = d.date === FormatDate(date)
+					const startTimestamp = getTimestamp(date, d.start)
+					const endTimestamp = getTimestamp(date, d.end)
+					const rangeStart = getTimestamp(date, time.start)
+					const rangeEnd = getTimestamp(date, time.end)
+					const overlaps = startTimestamp <= rangeEnd && endTimestamp >= rangeStart
+					return dayMatches && overlaps
+				}) !== undefined
 
-			const appId = await Appointment.create({
-				name,
-				phone,
-			})
+			const isWeeklyHour =
+				user.weeklyHours.find((d) => {
+					const dayMatches = d.day === new Date(date).getDay()
+					const startTimestamp = getTimestamp(date, d.start)
+					const endTimestamp = getTimestamp(date, d.end)
+					const rangeStart = getTimestamp(date, time.start)
+					const rangeEnd = getTimestamp(date, time.end)
+					const overlaps = startTimestamp <= rangeEnd && endTimestamp >= rangeStart
+					return dayMatches && overlaps
+				}) !== undefined
 
-			if (user.dates[timeIndex].appointments.find((a) => a.start === time.start))
-				return res.status(404).json({ success: false, message: 'הזמן תפוס!' })
+			if (!isSpecialDate && !isWeeklyHour)
+				return res.status(400).json({ success: false, message: 'הזמן שנבחר לא קיים!' })
 
-			user.dates[timeIndex].appointments.push({
-				appointment: appId,
+			const appId = Math.random().toString(36)
+
+			user.appointments.push({
+				id: appId,
+				info: { name, phone },
+				date: FormatDate(new Date(date)),
 				start: time.start,
 			})
 

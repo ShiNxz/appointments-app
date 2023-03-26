@@ -42,8 +42,6 @@ const CalendarModal = ({ times, selectedDate, setSelectedDate, mutate }: IProps)
 		setIsLoading(false)
 	}
 
-	console.log(generateTimeSlots('08:00', '16:00'))
-
 	return (
 		<Dialog
 			open={!!selectedDate}

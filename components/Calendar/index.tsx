@@ -1,5 +1,4 @@
 import type { DateSelectArg, DayCellContentArg, EventContentArg } from '@fullcalendar/core'
-import type { IAppointment } from '@/utils/models/Appointment'
 import type { IUser } from '@/utils/models/User'
 
 import { useState } from 'react'
@@ -11,14 +10,18 @@ import dayGridPlugin from '@fullcalendar/daygrid'
 import CalendarModal from './Modal'
 import FormatDate from '@/utils/functions/FormatDate'
 import generateTimeSlots from '@/utils/functions/TimeSlots'
-import GetUserEvents from '@/utils/functions/Events'
+import GenerateWorkingDates from '@/utils/functions/GenerateWorkingDates'
+import moment from 'moment'
 
 const renderEventContent = (eventContent: EventContentArg) => {
 	return (
-		<div className='overflow-hidden bg-blue-200 rounded-lg p-2'>
-			<b className='mx-1'>{eventContent.timeText}</b>
-			<i className='p-2'>{eventContent.event.title}</i>
-		</div>
+		<>
+			<div className='fc-daygrid-event-dot'></div>
+			<div className='fc-event-time'>
+				{eventContent.timeText.includes(':') ? eventContent.timeText : eventContent.timeText + ':00'}
+			</div>
+			<div className='fc-event-title'>תור - {eventContent.event.title}</div>
+		</>
 	)
 }
 
@@ -26,21 +29,19 @@ const CalendarDiv = ({ user, mutate }: IProps) => {
 	const [selectedDate, setSelectedDate] = useState<Date | null>(null)
 
 	const handleDateSelect = (arg: DateSelectArg) => {
-		if (arg.start.getDay() + 1 !== arg.end.getDay()) return
 		if (!isCanSelectDate(new Date(arg.start))) return
 		setSelectedDate(arg.start)
 	}
 
-	const apps = GetUserEvents(user.dates)
+	const workingDays = GenerateWorkingDates(user.weeklyHours, user.specialDates, user.appointments)
 
-	// todo also check if there are free slots
 	const isCanSelectDate = (date: Date) =>
-		(user && user.dates.some((d) => FormatDate(new Date(d.date)) === FormatDate(new Date(date)))) || false
+		(workingDays && workingDays.some((d) => FormatDate(new Date(d.start)) === FormatDate(new Date(date)))) || false
 
 	const avDates =
 		(selectedDate &&
-			user &&
-			user.dates.find((date) => FormatDate(new Date(date.date)) === FormatDate(new Date(selectedDate)))) ||
+			workingDays &&
+			workingDays.find((date) => FormatDate(new Date(date.start)) === FormatDate(new Date(selectedDate)))) ||
 		null
 
 	const renderCell = (date: DayCellContentArg) => {
@@ -50,6 +51,29 @@ const CalendarDiv = ({ user, mutate }: IProps) => {
 			? 'cursor-pointer bg-blue-50'
 			: 'cursor-not-allowed bg-red-50'
 	}
+
+	const times =
+		(avDates &&
+			generateTimeSlots(avDates.start, avDates.end).filter(
+				(time) => !avDates.appointments.some((app) => app.start === time.start)
+			)) ||
+		null
+
+	const apps = workingDays.reduce((acc: any, day) => {
+		if (day.appointments.length === 0) return acc
+
+		return [
+			...acc,
+			...day.appointments.map((app) => {
+				const newDate = moment(`${app.date} ${app.start}`, 'DD.MM.YYYY HH:mm')
+				return {
+					start: newDate.toDate(),
+					title: app.info.name || 'ללא שם',
+					onClick: console.log,
+				}
+			}),
+		]
+	}, [])
 
 	return (
 		<>
@@ -68,21 +92,14 @@ const CalendarDiv = ({ user, mutate }: IProps) => {
 				}}
 				eventMaxStack={1}
 				eventContent={renderEventContent}
-				locale={'he'}
+				locale='he'
 				direction='rtl'
-				timeZone='local'
 				select={handleDateSelect}
 				viewClassNames='bg-white'
 				dayCellClassNames={renderCell}
 			/>
 			<CalendarModal
-				times={
-					(avDates &&
-						generateTimeSlots(avDates.start, avDates.end).filter(
-							(time) => !avDates.appointments.some((app) => app.start === time.start)
-						)) ||
-					null
-				}
+				times={times}
 				selectedDate={selectedDate}
 				setSelectedDate={setSelectedDate}
 				mutate={mutate}
@@ -93,7 +110,6 @@ const CalendarDiv = ({ user, mutate }: IProps) => {
 
 interface IProps {
 	user: IUser
-	appointments: IAppointment[]
 	mutate: () => Promise<void>
 }
 

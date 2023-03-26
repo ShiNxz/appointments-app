@@ -18,7 +18,6 @@ const useAuth = (): IAuth => {
 		await mutate()
 	}
 
-	console.log({ isLoading, isLoggedIn, user: data, mutate, logout })
 	return { isLoading, isLoggedIn, user: data, mutate, logout }
 }
 

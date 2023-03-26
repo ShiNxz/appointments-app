@@ -16,10 +16,12 @@ const MainPage = () => {
 	return (
 		<Layout title='ניהול זמני פעילות'>
 			<h4 className='text-3xl font-medium mb-1 text-gray-900'>ניהול זמני פעילות</h4>
-			<p className='mb-6 text-gray-600'>לחצו על אחד התאריכים הפנויים על מנת לקבוע זמני פעילות לאותו היום</p>
-			
+			<p className='mb-6 text-gray-600'>בחרו זמני פעילות קבועים או זמני פעילות על פי תאריך</p>
+
 			<CalendarDiv
-				avDates={data && data.user ? data.user.dates : []}
+				weeklyHours={(data && data.user && data.user.weeklyHours) || []}
+				specialDates={(data && data.user && data.user.specialDates) || []}
+				appointments={(data && data.user && data.user.appointments) || []}
 				mutate={mutate}
 			/>
 		</Layout>

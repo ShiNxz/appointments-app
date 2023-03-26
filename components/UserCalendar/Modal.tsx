@@ -1,3 +1,4 @@
+import type { ISpecialDate } from '@/utils/models/User'
 import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material'
 import { useState } from 'react'
 import { toast } from 'react-toastify'
@@ -17,14 +18,15 @@ const CalendarModal = ({ selectedDate, setSelectedDate, mutate }: IProps) => {
 
 	const handleSubmit = async () => {
 		if (!start || !end) return toast.error('יש לבחור שעת התחלה ושעת סיום')
+		if (!selectedDate) return toast.error('אירעה שגיאה בעת קביעת הזמנים')
 
 		setIsLoading(true)
 
 		try {
-			const data = {
+			const data: ISpecialDate = {
 				start: moment(start.toDate(), 'HH:mm').format('HH:mm'),
 				end: moment(end.toDate(), 'HH:mm').format('HH:mm'),
-				date: selectedDate,
+				date: FormatDate(selectedDate),
 			}
 
 			await Axios.post('/api/admin/user/times', data)

@@ -1,8 +1,9 @@
 import moment from 'moment'
 
-const generateTimeSlots = (startTime: string, endTime: string): Times[] => {
+const generateTimeSlots = (startTime: Date, endTime: Date): Times[] => {
 	const start = moment(startTime, 'HH:mm')
 	const end = moment(endTime, 'HH:mm')
+	console.log(end)
 	const timeSlots = []
 
 	let current = moment(start)
