@@ -1,9 +1,9 @@
 import type { DateSelectArg, EventContentArg } from '@fullcalendar/core'
 import type { IAvailableDate } from '@/utils/models/User'
 
+import FullCalendar from '@fullcalendar/react'
 import interactionPlugin from '@fullcalendar/interaction'
 import dayGridPlugin from '@fullcalendar/daygrid'
-import FullCalendar from '@fullcalendar/react'
 
 import GetUserEvents from '@/utils/functions/Events'
 

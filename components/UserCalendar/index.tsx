@@ -3,9 +3,9 @@ import type { IAvailableDate } from '@/utils/models/User'
 
 import { useState } from 'react'
 
+import FullCalendar from '@fullcalendar/react'
 import interactionPlugin from '@fullcalendar/interaction'
 import dayGridPlugin from '@fullcalendar/daygrid'
-import FullCalendar from '@fullcalendar/react'
 
 import CalendarModal from './Modal'
 import FormatDate from '@/utils/functions/FormatDate'
