@@ -1,0 +1,40 @@
+{
+	"compilerOptions": {
+		"module": "commonjs",
+		"target": "es6",
+		"noEmit": true,
+		"baseUrl": ".",
+		"jsx": "preserve",
+		"paths": {
+			"@/pages/*": ["pages/*"],
+			"@/components/*": ["components/*"],
+			"@/inputs/*": ["components/Page/Inputs/*"],
+			"@/Layout/*": ["components/Layout/*"],
+			"@/UI/*": ["components/UI/*"],
+			"@/data/*": ["utils/data/*"],
+			"@/utils/*": ["utils/*"],
+			"@/types/*": ["types/*"],
+			"@/stores/*": ["stores/*"],
+			"@/func/*": ["utils/functions/*"],
+			"@/lib/*": ["utils/lib/*"],
+			"@/models/*": ["utils/models/*"],
+			"@/public/*": ["public/*"],
+			"@/assets/*": ["public/assets/*"],
+			"@/slices/*": ["utils/slices/*"],
+			"@/controllers/*": ["controllers/*"],
+			"@/styles/": ["styles/"]
+		},
+		"lib": ["dom", "dom.iterable", "esnext"],
+		"allowJs": false,
+		"skipLibCheck": true,
+		"strict": true,
+		"forceConsistentCasingInFileNames": true,
+		"incremental": false,
+		"esModuleInterop": true,
+		"moduleResolution": "node",
+		"resolveJsonModule": true,
+		"isolatedModules": true
+	},
+	"exclude": ["node_modules", "node_modules/@nextui-org/react"],
+	"include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "next.config.js", "postcss.config.js", "tailwind.config.js"]
+}

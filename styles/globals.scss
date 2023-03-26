@@ -1,0 +1,35 @@
+@import url('https://fonts.googleapis.com/css2?family=Rubik:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+	--toastify-font-family: 'Rubik', sans-serif !important;
+}
+
+html,
+body {
+	padding: 0;
+	margin: 0;
+	direction: rtl;
+	height: 100%;
+	position: unset !important;
+	-ms-overflow-style: none; /* IE and Edge */
+	scrollbar-width: none; /* Firefox */
+	&::-webkit-scrollbar {
+		display: none;
+	}
+	
+	background-color: #fafafa;
+	scroll-behavior: smooth;
+	
+	display: flex;
+	flex-direction: column;
+	
+	font-family: 'Rubik'
+}
+
+.MuiDataGrid-toolbarContainer > button {
+	margin-left: 20px !important;
+}
