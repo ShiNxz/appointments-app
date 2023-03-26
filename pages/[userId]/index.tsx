@@ -1,5 +1,4 @@
 import type { IUser } from '@/utils/models/User'
-import type { IAppointment } from '@/utils/models/Appointment'
 
 import Layout from '@/UI/Layout'
 import CalendarDiv from '@/components/Calendar'
@@ -14,7 +13,6 @@ const MainPage = () => {
 	const { data, mutate, isLoading } = useSWR('/api/appointments', fetcher) as {
 		data: {
 			users: IUser[]
-			appointments: IAppointment[]
 		}
 		mutate: () => Promise<void>
 		isLoading: boolean
@@ -32,7 +30,6 @@ const MainPage = () => {
 
 			<CalendarDiv
 				user={user}
-				appointments={data && data.appointments ? data.appointments : []}
 				mutate={mutate}
 			/>
 		</Layout>
