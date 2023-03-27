@@ -1,4 +1,4 @@
-import type { DateSelectArg, EventContentArg } from '@fullcalendar/core'
+import type { DateSelectArg } from '@fullcalendar/core'
 import type { IAppointments, ISpecialDate, IWeeklyHours } from '@/utils/models/User'
 
 import { useState } from 'react'
@@ -9,7 +9,6 @@ import dayGridPlugin from '@fullcalendar/daygrid'
 import GenerateWorkingDates from '@/utils/functions/GenerateWorkingDates'
 
 import CalendarModal from './Modal'
-import DaysSettings from './DaysSettings'
 
 const TimesCalendar = ({ weeklyHours, specialDates, appointments, mutate }: IProps) => {
 	const [selectedDate, setSelectedDate] = useState<Date | null>(null)
@@ -23,7 +22,6 @@ const TimesCalendar = ({ weeklyHours, specialDates, appointments, mutate }: IPro
 
 	return (
 		<>
-			<DaysSettings mutate={mutate} />
 			<FullCalendar
 				initialView='dayGridMonth'
 				plugins={[dayGridPlugin, interactionPlugin]}
@@ -40,6 +38,7 @@ const TimesCalendar = ({ weeklyHours, specialDates, appointments, mutate }: IPro
 				locale='he'
 				direction='rtl'
 				select={handleDateSelect}
+				eventClassNames='dir-ltr'
 				viewClassNames={'bg-white'}
 			/>
 			<CalendarModal
