@@ -8,6 +8,7 @@ const EventModal = ({ selectedEvent, setSelectedEvent, mutate }: IProps) => {
 	const [isLoading, setIsLoading] = useState(false)
 
 	const appId = selectedEvent?.event?._def?.extendedProps.appId
+	const name = selectedEvent?.event?._def?.extendedProps.name
 
 	const handleClose = () => setSelectedEvent(null)
 
@@ -39,7 +40,7 @@ const EventModal = ({ selectedEvent, setSelectedEvent, mutate }: IProps) => {
 		>
 			<DialogTitle>מחיקה</DialogTitle>
 			<DialogContent>
-				<DialogContentText>האם אתה בטוח שאתה רוצה למחוק את התור - </DialogContentText>
+				<DialogContentText>האם אתה בטוח שאתה רוצה למחוק את התור של {selectedEvent?.event.title ? selectedEvent?.event.title : 'ללא שם'}</DialogContentText>
 			</DialogContent>
 			<DialogActions>
 				<Button

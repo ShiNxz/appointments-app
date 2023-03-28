@@ -8,7 +8,7 @@ const Sidebar = () => {
 	const { isLoggedIn } = useAuth()
 
 	return (
-		<div className='bg-slate-50 rounded-lg col-span-2 p-4'>
+		<div className='bg-slate-50 rounded-lg lg:col-span-2 p-4'>
 			{Routes.map((route) => {
 				if (route.logged && !isLoggedIn) return null
 

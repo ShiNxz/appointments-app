@@ -4,14 +4,24 @@ import type { IAppointments, ISpecialDate, IWeeklyHours } from '@/utils/models/U
 import FullCalendar from '@fullcalendar/react'
 import interactionPlugin from '@fullcalendar/interaction'
 import dayGridPlugin from '@fullcalendar/daygrid'
+import timeGridPlugin from '@fullcalendar/timegrid'
 
-import GenerateWorkingDates from '@/utils/functions/GenerateWorkingDates'
-import moment from 'moment'
 import { useState } from 'react'
+import moment from 'moment'
+import GenerateWorkingDates from '@/utils/functions/GenerateWorkingDates'
 import EventModal from './EventModal'
 
 const renderEventContent = (eventContent: EventContentArg) => {
-	return (
+	return eventContent.view.type === 'timeGridWeek' ? (
+		<div>
+			<div className='fc-event-time text-center text-slate-800'>
+				{eventContent.timeText.includes(':') ? eventContent.timeText : eventContent.timeText + ':00'}
+			</div>
+			<div className='fc-event-title text-center text-slate-800 font-medium leading-3'>
+				תור - {eventContent.event.title}
+			</div>
+		</div>
+	) : (
 		<>
 			<div className='fc-daygrid-event-dot'></div>
 			<div className='fc-event-time'>
@@ -36,6 +46,7 @@ const ManageCalendar = ({ weeklyHours, specialDates, appointments, mutate }: IPr
 				const newDate = moment(`${app.date} ${app.start}`, 'DD.MM.YYYY HH:mm')
 				return {
 					start: newDate.toDate(),
+					end: newDate.add(15, 'minutes').toDate(),
 					title: app.info.name || 'ללא שם',
 					appId: app.id,
 				}
@@ -47,17 +58,24 @@ const ManageCalendar = ({ weeklyHours, specialDates, appointments, mutate }: IPr
 		<>
 			<FullCalendar
 				initialView='dayGridMonth'
-				plugins={[dayGridPlugin, interactionPlugin]}
+				plugins={[dayGridPlugin, interactionPlugin, timeGridPlugin]}
 				events={apps}
 				selectable={true}
+				slotDuration='00:10:00'
 				headerToolbar={{
-					center: '',
-					right: 'title',
+					center: 'title',
+					right: 'dayGridMonth,timeGridWeek',
 					left: 'prev,next today',
 				}}
+				slotMinTime='06:00:00'
+				slotMaxTime='23:00:00'
+				allDayText='כל היום'
 				buttonText={{
 					today: 'היום',
+					week: 'שבועי',
+					month: 'חודשי',
 				}}
+				slotLabelFormat={[{ hour: '2-digit', minute: '2-digit', hour12: false }]}
 				eventMaxStack={1}
 				eventContent={renderEventContent}
 				locale='he'
@@ -66,6 +84,7 @@ const ManageCalendar = ({ weeklyHours, specialDates, appointments, mutate }: IPr
 				eventClick={(info) => {
 					setSelectedEvent(info)
 				}}
+				eventColor='#ffd99f'
 				eventClassNames='cursor-pointer'
 			/>
 			<EventModal

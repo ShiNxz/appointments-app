@@ -787,3 +787,18 @@ a.fc-event:hover {
 .fc-direction-rtl .fc-daygrid-event .fc-event-time {
 	margin-left: 3px;
 }
+
+.fc-time-grid-container {
+	display: grid;
+	grid-template-columns: repeat(7, 1fr);
+	grid-template-rows: auto;
+}
+
+.fc-time-grid-col {
+	border-top: 1px solid #ddd;
+	border-bottom: 1px solid #ddd;
+}
+
+.fc-time-grid-divider {
+	display: none;
+}

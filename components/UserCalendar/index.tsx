@@ -30,7 +30,7 @@ const TimesCalendar = ({ weeklyHours, specialDates, appointments, mutate }: IPro
 				headerToolbar={{
 					center: '',
 					right: 'title',
-					left: 'prev,next today',
+					left: 'prev,next',
 				}}
 				buttonText={{
 					today: 'היום',
@@ -39,7 +39,7 @@ const TimesCalendar = ({ weeklyHours, specialDates, appointments, mutate }: IPro
 				direction='rtl'
 				select={handleDateSelect}
 				eventClassNames='dir-ltr'
-				viewClassNames={'bg-white'}
+				viewClassNames='bg-white'
 			/>
 			<CalendarModal
 				selectedDate={selectedDate}

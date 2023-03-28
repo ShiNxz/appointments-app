@@ -5,7 +5,6 @@ import { useState } from 'react'
 import { toast } from 'react-toastify'
 import { useRouter } from 'next/router'
 import Axios from '@/utils/functions/Axios'
-import generateTimeSlots from '@/utils/functions/TimeSlots'
 import FormatDate from '@/utils/functions/FormatDate'
 import TimesDropdown from './TimesDropdown'
 
