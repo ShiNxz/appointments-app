@@ -1,11 +1,12 @@
-import type { ISpecialDate, IWeeklyHours, IAppointments } from '../models/User'
+import type { ISpecialDate, IWeeklyHours, IAppointments, IBreak } from '../models/User'
 import moment from 'moment'
 import FormatDate from './FormatDate'
 
 const GenerateWorkingDates = (
 	weeklyHours: IWeeklyHours[],
 	specialDates: ISpecialDate[],
-	appointments: IAppointments[]
+	appointments: IAppointments[],
+	breaks: IBreak[]
 ) => {
 	const dates: IWorkingDay[] = []
 
@@ -37,6 +38,7 @@ const GenerateWorkingDates = (
 				end: newEndDate.toDate(),
 				allDay: true,
 				appointments: appointments.filter((a) => a.date === FormatDate(currentDate.toDate())),
+				breaks: breaks.filter((b) => b.day === currentDayOfWeek),
 			})
 		} else {
 			// Check if there are any weekly hours for the current day of week
@@ -59,8 +61,36 @@ const GenerateWorkingDates = (
 					end: newEndDate.toDate(),
 					allDay: true,
 					appointments: appointments.filter((a) => a.date === FormatDate(currentDate.toDate())),
+					breaks: breaks.filter((b) => b.day === currentDayOfWeek),
 				})
 			}
+		}
+
+		// Check if there are any breaks for the current date
+		const currentBreaks = breaks.filter((b) => b.day === currentDayOfWeek)
+
+		if (currentBreaks.length > 0) {
+			currentBreaks.forEach((b) => {
+				const newDate = moment(currentDate).set({
+					hour: parseInt(b.start.split(':')[0]),
+					minute: parseInt(b.start.split(':')[1]),
+				})
+
+				const newEndDate = moment(currentDate).set({
+					hour: parseInt(b.end.split(':')[0]),
+					minute: parseInt(b.end.split(':')[1]),
+				})
+
+				dates.push({
+					title: `הפסקה: ${b.start} -  ${b.end}`,
+					start: newDate.toDate(),
+					end: newEndDate.toDate(),
+					allDay: false,
+					appointments: [],
+					break: true,
+					breakId: b.id,
+				})
+			})
 		}
 	}
 
@@ -75,6 +105,9 @@ interface IWorkingDay {
 	end: Date
 	allDay: boolean
 	appointments: IAppointments[]
+	breaks?: IBreak[]
+	break?: boolean
+	breakId?: string
 }
 
 export default GenerateWorkingDates

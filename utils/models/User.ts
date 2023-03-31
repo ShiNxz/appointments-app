@@ -1,20 +1,34 @@
+import type { ICompany } from './Company'
 import { models, model, Schema, Model } from 'mongoose'
 
 export interface IUser extends Document {
 	_id: string
 
 	name: string
-	phone: string
+	email: string
+	password: string
+
+	company: ICompany
+
+	role: 'user' | 'manager'
 
 	appointments: IAppointments[]
 	weeklyHours: IWeeklyHours[]
 	specialDates: ISpecialDate[] // Will always override weeklyHours
+	breaks: IBreak[]
 
 	createdAt: number
 	updatedAt: number
 }
 
 export interface IWeeklyHours {
+	day: TDay // 0 - Sunday, 1 - Monday, etc.
+	start: string // 10:00
+	end: string // 17:00
+}
+
+export interface IBreak {
+	id: string
 	day: TDay // 0 - Sunday, 1 - Monday, etc.
 	start: string // 10:00
 	end: string // 17:00
@@ -43,7 +57,18 @@ export interface IAppInfo {
 const UserSchema = new Schema(
 	{
 		name: String,
-		phone: String,
+		email: String,
+		password: String,
+
+		company: {
+			type: Schema.Types.ObjectId,
+			ref: 'Company',
+		},
+
+		role: {
+			type: String,
+			enum: ['user', 'manager'],
+		},
 
 		appointments: [
 			{
@@ -71,6 +96,18 @@ const UserSchema = new Schema(
 		specialDates: [
 			{
 				date: String,
+				start: String,
+				end: String,
+			},
+		],
+
+		breaks: [
+			{
+				id: String,
+				day: {
+					type: Number,
+					enum: [0, 1, 2, 3, 4, 5, 6], // 0 for Sunday, 1 for Monday, etc.
+				},
 				start: String,
 				end: String,
 			},

@@ -5,12 +5,13 @@ import useAuth from '@/utils/hooks/useAuth'
 
 const Sidebar = () => {
 	const router = useRouter()
-	const { isLoggedIn } = useAuth()
+	const { isLoggedIn, user } = useAuth()
 
 	return (
-		<div className='bg-slate-50 rounded-lg lg:col-span-2 p-4'>
+		<div className='bg-slate-50 rounded-lg lg:col-span-3 p-4'>
 			{Routes.map((route) => {
 				if (route.logged && !isLoggedIn) return null
+				if (route.manager && user?.role !== 'manager') return null
 
 				return (
 					<SidebarOption

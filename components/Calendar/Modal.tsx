@@ -10,6 +10,7 @@ import TimesDropdown from './TimesDropdown'
 
 const CalendarModal = ({ times, selectedDate, setSelectedDate, mutate }: IProps) => {
 	const [isLoading, setIsLoading] = useState(false)
+
 	const router = useRouter()
 	const { userId } = router.query as { userId: string }
 
@@ -51,7 +52,7 @@ const CalendarModal = ({ times, selectedDate, setSelectedDate, mutate }: IProps)
 			<DialogContent>
 				<DialogContentText>יש לרשום שם מלא וטלפון</DialogContentText>
 				<div className='gap-4 flex flex-col my-8'>
-				<TimesDropdown
+					<TimesDropdown
 						time={time}
 						times={times || []}
 						setTime={setTime}
@@ -72,8 +73,6 @@ const CalendarModal = ({ times, selectedDate, setSelectedDate, mutate }: IProps)
 						onChange={(e) => setPhone(e.target.value)}
 						disabled={isLoading}
 					/>
-
-					
 				</div>
 			</DialogContent>
 			<DialogActions>

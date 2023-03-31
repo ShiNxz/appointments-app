@@ -33,7 +33,7 @@ const CalendarDiv = ({ user, mutate }: IProps) => {
 		setSelectedDate(arg.start)
 	}
 
-	const workingDays = GenerateWorkingDates(user.weeklyHours, user.specialDates, user.appointments)
+	const workingDays = GenerateWorkingDates(user.weeklyHours, user.specialDates, user.appointments, user.breaks)
 
 	const isCanSelectDate = (date: Date) =>
 		(workingDays && workingDays.some((d) => FormatDate(new Date(d.start)) === FormatDate(new Date(date)))) || false
@@ -54,9 +54,26 @@ const CalendarDiv = ({ user, mutate }: IProps) => {
 
 	const times =
 		(avDates &&
-			generateTimeSlots(avDates.start, avDates.end).filter(
-				(time) => !avDates.appointments.some((app) => app.start === time.start)
-			)) ||
+			generateTimeSlots(avDates.start, avDates.end).filter((time) => {
+				if (avDates.appointments.some((app) => app.start === time.start)) return false
+
+				if (avDates.breaks && avDates.breaks.length > 0) {
+					// Check if any of the breaks overlap with the current time slot
+					for (let i = 0; i < avDates.breaks.length; i++) {
+						const breakStart = moment(avDates.breaks[i].start, 'HH:mm')
+						const breakEnd = moment(avDates.breaks[i].end, 'HH:mm')
+						const slotStart = moment(time.start, 'HH:mm')
+						const slotEnd = moment(time.end, 'HH:mm')
+
+						if (slotStart.isBefore(breakEnd) && slotEnd.isAfter(breakStart)) {
+							// The current time slot overlaps with a break, return false
+							return false
+						}
+					}
+				}
+
+				return true
+			})) ||
 		null
 
 	const apps = workingDays.reduce((acc: any, day) => {

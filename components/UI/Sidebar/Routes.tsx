@@ -9,15 +9,27 @@ const Routes: Route[] = [
 	},
 	{
 		path: '/admin',
-		title: 'ניהול זמני פעילות',
+		title: 'ניהול זמני פעילות והפסקות',
 		icon: BiHomeAlt,
 		logged: true,
 	},
 	{
 		path: '/admin/calendar',
-		title: 'ניהול תורים',
+		title: 'ניהול תורים וימי עבודה',
 		icon: BiHomeAlt,
 		logged: true,
+	},
+	{
+		path: '/admin/workers',
+		title: 'ניהול עובדים',
+		icon: BiHomeAlt,
+		manager: true,
+	},
+	{
+		path: '/admin/hours',
+		title: 'ניהול זמני פעילות חברה',
+		icon: BiHomeAlt,
+		manager: true,
 	},
 ]
 
@@ -26,6 +38,7 @@ interface Route {
 	title: string
 	icon: IconType
 	logged?: boolean
+	manager?: boolean
 }
 
 export default Routes

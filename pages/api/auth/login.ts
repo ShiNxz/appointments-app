@@ -6,7 +6,7 @@ import User from '@/models/User'
 
 interface LoginBody extends NextApiRequest {
 	body: {
-		phone: string
+		email: string
 		password: string
 	}
 }
@@ -18,21 +18,19 @@ const handler = async (req: LoginBody, res: NextApiResponse) => {
 
 	switch (method) {
 		case 'POST': {
-			if (!req.body.phone) return res.status(400).json({ success: false, error: 'מספר הטלפון חסר' })
+			if (!req.body.email) return res.status(400).json({ success: false, error: 'כתובת האימייל חסרה' })
 			if (!req.body.password) return res.status(400).json({ success: false, error: 'הסיסמה חסרה' })
 
-			let { phone, password } = req.body
+			let { email, password } = req.body
 
-			phone = phone.trim()
-
-			const user = await User.findOne({ phone })
+			const user = await User.findOne({ email })
 			if (!user) return res.status(401).json({ success: false, error: 'לא נמצא משתמש קיים עם הפרטים שנרשמו!' })
-
-			if (password === '123') {
+			console.log(user.password, password)
+			if (password === user.password) {
 				const token = jwt.sign(
 					{
 						_id: user._id,
-						phone: user.phone,
+						email: user.email,
 						name: user.name,
 					} as IDecodedUser,
 					process.env.JWT_SECRET as string

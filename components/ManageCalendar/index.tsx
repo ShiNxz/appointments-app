@@ -1,5 +1,5 @@
-import type { EventClickArg, EventContentArg } from '@fullcalendar/core'
-import type { IAppointments, ISpecialDate, IWeeklyHours } from '@/utils/models/User'
+import type { DateSelectArg, EventClickArg, EventContentArg } from '@fullcalendar/core'
+import type { IAppointments, IBreak, ISpecialDate, IWeeklyHours } from '@/utils/models/User'
 
 import FullCalendar from '@fullcalendar/react'
 import interactionPlugin from '@fullcalendar/interaction'
@@ -10,6 +10,8 @@ import { useState } from 'react'
 import moment from 'moment'
 import GenerateWorkingDates from '@/utils/functions/GenerateWorkingDates'
 import EventModal from './EventModal'
+import CalendarModal from './Modal'
+import BreakModal from './BreakModal'
 
 const renderEventContent = (eventContent: EventContentArg) => {
 	return eventContent.view.type === 'timeGridWeek' ? (
@@ -18,7 +20,7 @@ const renderEventContent = (eventContent: EventContentArg) => {
 				{eventContent.timeText.includes(':') ? eventContent.timeText : eventContent.timeText + ':00'}
 			</div>
 			<div className='fc-event-title text-center text-slate-800 font-medium leading-3'>
-				תור - {eventContent.event.title}
+				{eventContent.event.title}
 			</div>
 		</div>
 	) : (
@@ -27,44 +29,63 @@ const renderEventContent = (eventContent: EventContentArg) => {
 			<div className='fc-event-time'>
 				{eventContent.timeText.includes(':') ? eventContent.timeText : eventContent.timeText + ':00'}
 			</div>
-			<div className='fc-event-title'>תור - {eventContent.event.title}</div>
+			<div className='fc-event-title'>{eventContent.event.title}</div>
 		</>
 	)
 }
 
-const ManageCalendar = ({ weeklyHours, specialDates, appointments, mutate }: IProps) => {
-	const workingDays = GenerateWorkingDates(weeklyHours, specialDates, appointments)
+const ManageCalendar = ({ weeklyHours, specialDates, appointments, breaks, mutate, manager }: IProps) => {
+	const workingDays = GenerateWorkingDates(weeklyHours, specialDates, appointments, breaks)
 
 	const [selectedEvent, setSelectedEvent] = useState<EventClickArg | null>(null)
+	const [selectedBreak, setSelectedBreak] = useState<EventClickArg | null>(null)
+
+	const [selectedDate, setSelectedDate] = useState<Date | null>(null)
+
+	const handleDateSelect = (arg: DateSelectArg) => {
+		if (arg.start.getDay() + 1 !== arg.end.getDay()) return
+		setSelectedDate(arg.start)
+	}
 
 	const apps = workingDays.reduce((acc: any, day) => {
-		if (day.appointments.length === 0) return acc
+		if (day.appointments?.length === 0) return acc
 
 		return [
 			...acc,
-			...day.appointments.map((app) => {
+			...day.appointments?.map((app) => {
 				const newDate = moment(`${app.date} ${app.start}`, 'DD.MM.YYYY HH:mm')
 				return {
 					start: newDate.toDate(),
 					end: newDate.add(15, 'minutes').toDate(),
-					title: app.info.name || 'ללא שם',
+					title: `תור: ${app.info.name || 'ללא שם'}`,
 					appId: app.id,
 				}
 			}),
 		]
 	}, [])
 
+	const workingHours = workingDays.map((day) => {
+		return {
+			start: day.start,
+			end: day.end,
+			title: day.break ? 'הפסקה' : 'יום עבודה',
+			appId: day.break ? day.breakId : 'weekly',
+			backgroundColor: day.break ? '#e7caca' : '#d6d6d6',
+			displayEventEnd: true,
+		}
+	})
+
 	return (
 		<>
 			<FullCalendar
-				initialView='dayGridMonth'
+				initialView='timeGridWeek'
 				plugins={[dayGridPlugin, interactionPlugin, timeGridPlugin]}
-				events={apps}
+				events={[...apps, ...workingHours]}
 				selectable={true}
 				slotDuration='00:10:00'
 				headerToolbar={{
 					center: 'title',
-					right: 'dayGridMonth,timeGridWeek',
+					right: 'timeGridWeek,dayGridMonth',
 					left: 'prev,next today',
 				}}
 				slotMinTime='06:00:00'
@@ -76,22 +97,41 @@ const ManageCalendar = ({ weeklyHours, specialDates, appointments, mutate }: IPr
 					month: 'חודשי',
 				}}
 				slotLabelFormat={[{ hour: '2-digit', minute: '2-digit', hour12: false }]}
-				eventMaxStack={1}
+				eventMaxStack={5}
 				eventContent={renderEventContent}
 				locale='he'
 				direction='rtl'
 				viewClassNames='bg-white'
-				eventClick={(info) => {
-					setSelectedEvent(info)
-				}}
+				eventClick={(info) =>
+					manager
+						? undefined
+						: info.event.title !== 'יום עבודה' && info.event.title === 'הפסקה'
+						? setSelectedBreak(info)
+						: setSelectedEvent(info)
+				}
 				eventColor='#ffd99f'
 				eventClassNames='cursor-pointer'
+				select={manager ? undefined : handleDateSelect}
 			/>
-			<EventModal
-				selectedEvent={selectedEvent}
-				setSelectedEvent={setSelectedEvent}
-				mutate={mutate}
-			/>
+			{!manager && (
+				<>
+					<EventModal
+						selectedEvent={selectedEvent}
+						setSelectedEvent={setSelectedEvent}
+						mutate={mutate}
+					/>
+					<BreakModal
+						selectedBreak={selectedBreak}
+						setSelectedBreak={setSelectedBreak}
+						mutate={mutate}
+					/>
+					<CalendarModal
+						selectedDate={selectedDate}
+						setSelectedDate={setSelectedDate}
+						mutate={mutate}
+					/>
+				</>
+			)}
 		</>
 	)
 }
@@ -100,7 +140,9 @@ interface IProps {
 	weeklyHours: IWeeklyHours[]
 	specialDates: ISpecialDate[]
 	appointments: IAppointments[]
+	breaks: IBreak[]
 	mutate: () => Promise<any>
+	manager?: boolean
 }
 
 export default ManageCalendar

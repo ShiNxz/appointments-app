@@ -8,7 +8,7 @@ const generateTimeSlots = (startTime: Date, endTime: Date): Times[] => {
 
 	let current = moment(start)
 
-	while (current <= end) {
+	while (current <= end && current.add(15) <= end) {
 		timeSlots.push({ start: current.format('HH:mm'), end: current.add(15, 'minutes').format('HH:mm') })
 	}
 

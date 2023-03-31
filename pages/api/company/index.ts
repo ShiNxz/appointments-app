@@ -1,6 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import db from '@/utils/db'
-import User from '@/utils/models/User'
+import Company from '@/utils/models/Company'
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 	await db()
@@ -9,21 +9,13 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 
 	switch (method) {
 		case 'GET': {
-			const users = await User.find({})
+			const companies = await Company.find({}).select('name _id').lean()
 
-			return res.status(200).json({ success: true, users })
+			return res.status(200).json({ success: true, companies })
 		}
-
 		default:
 			return res.status(401).end()
 	}
-}
-
-interface IBody {
-	date: Date
-	userId: string
-	name: string
-	time: string
 }
 
 export default handler

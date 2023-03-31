@@ -7,7 +7,7 @@ import dayjs, { Dayjs } from 'dayjs'
 import Axios from '@/utils/functions/Axios'
 import moment from 'moment'
 
-const DaysSettings = ({ mutate, weeklyHours, companyWeeklyHours }: IProps) => {
+const DaysSettings = ({ mutate, weeklyHours }: IProps) => {
 	const [isLoading, setIsLoading] = useState(false)
 
 	const days: IDay[] = useMemo(
@@ -55,21 +55,6 @@ const DaysSettings = ({ mutate, weeklyHours, companyWeeklyHours }: IProps) => {
 			return toast.error('יש לבחור שעת התחלה ושעת סיום לכל יום')
 		}
 
-		if (!companyWeeklyHours) return toast.error('לא נמצאו זמני עבודה לחברה')
-
-		// check if the user didnt choose hours that above or below the company hours
-		if (
-			state?.some(
-				(day, i) =>
-					day.start!.isBefore(dayjs(companyWeeklyHours[i].start, 'HH:mm')) ||
-					day.end!.isAfter(dayjs(companyWeeklyHours[i].end, 'HH:mm'))
-			)
-		) {
-			setIsLoading(false)
-			return toast.error('הזמנים שבחרת חורגים מזמני העבודה של החברה')
-		}
-
-
 		const data: IWeeklyHours[] | null =
 			state &&
 			state.map((day, index) => ({
@@ -79,9 +64,9 @@ const DaysSettings = ({ mutate, weeklyHours, companyWeeklyHours }: IProps) => {
 			}))
 
 		try {
-			await Axios.put('/api/admin/user/times', data)
+			await Axios.put('/api/admin/company', data)
 
-			toast.success('זמני העבודה נקבעו בהצלחה')
+			toast.success('זמני העבודה של החברה נקבעו בהצלחה')
 			await mutate()
 		} catch (error) {
 			toast.error('אירעה שגיאה בעת קביעת זמני העבודה')
@@ -148,7 +133,6 @@ const DaysSettings = ({ mutate, weeklyHours, companyWeeklyHours }: IProps) => {
 
 interface IProps {
 	weeklyHours: IWeeklyHours[] | null
-	companyWeeklyHours: IWeeklyHours[] | null
 	mutate: () => Promise<void>
 }
 

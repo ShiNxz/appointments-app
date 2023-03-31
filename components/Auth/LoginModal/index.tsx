@@ -9,18 +9,18 @@ const LoginModal = ({ loginModal, setLoginModal }: IProps) => {
 	const { mutate } = useAuth()
 
 	const [isLoading, setIsLoading] = useState(false)
-	const [phone, setPhone] = useState('')
+	const [email, setEmail] = useState('')
 	const [password, setPassword] = useState('')
 
 	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault()
 
-		if (phone.length < 7 || password.length < 1) return toast.error('חלק מהפרטים חסרים')
+		if (email.length < 7 || password.length < 1) return toast.error('חלק מהפרטים חסרים')
 
 		setIsLoading(true)
 
 		const loginData = {
-			phone,
+			email,
 			password,
 		}
 
@@ -52,8 +52,8 @@ const LoginModal = ({ loginModal, setLoginModal }: IProps) => {
 						id='phone'
 						label='מספר טלפון'
 						variant='outlined'
-						onChange={(e) => setPhone(e.target.value)}
-						value={phone}
+						onChange={(e) => setEmail(e.target.value)}
+						value={email}
 						margin='normal'
 						type='text'
 						disabled={isLoading}
