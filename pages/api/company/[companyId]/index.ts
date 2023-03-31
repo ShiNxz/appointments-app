@@ -3,6 +3,9 @@ import db from '@/utils/db'
 import User from '@/utils/models/User'
 import Company from '@/utils/models/Company'
 
+const objectIdPattern = /^[0-9a-fA-F]{24}$/
+export const isValidObjectId = (id: any): boolean => objectIdPattern.test(id)
+
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 	await db()
 
@@ -11,6 +14,8 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 	switch (method) {
 		case 'GET': {
 			const { companyId } = req.query
+
+			if (!isValidObjectId(companyId)) return res.status(400).json({ success: false, error: 'החברה אינה קיימת' })
 
 			const company = await Company.findOne({
 				_id: companyId,
