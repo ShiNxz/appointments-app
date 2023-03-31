@@ -2,7 +2,7 @@ import type { NextApiRequest, NextApiResponse } from 'next'
 import db from '@/utils/db'
 import User from '@/utils/models/User'
 import Company from '@/utils/models/Company'
-//
+
 const objectIdPattern = /^[0-9a-fA-F]{24}$/
 export const isValidObjectId = (id: any): boolean => objectIdPattern.test(id)
 
