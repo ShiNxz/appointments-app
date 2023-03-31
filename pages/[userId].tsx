@@ -5,7 +5,6 @@ import CalendarDiv from '@/components/Calendar'
 import useSWR from 'swr'
 import fetcher from '@/utils/functions/Fetcher'
 import { useRouter } from 'next/router'
-import { GetServerSideProps } from 'next'
 
 const MainPage = () => {
 	const router = useRouter()

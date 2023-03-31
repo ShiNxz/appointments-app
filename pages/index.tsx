@@ -1,15 +1,11 @@
 import type { ICompany } from '@/utils/models/Company'
 import { GetServerSideProps } from 'next'
-import { useRouter } from 'next/router'
 import Layout from '@/UI/Layout'
 import useSWR from 'swr'
 import fetcher from '@/utils/functions/Fetcher'
-import SelectCompany from '@/components/SelectCompanies'
 import SelectUser from '@/components/SelectUser'
 
 const MainPage = ({ subdomain }: { subdomain: string }) => {
-	const router = useRouter()
-
 	const { data } = useSWR(subdomain ? `/api/company/${subdomain}` : `/api/company`, fetcher) as {
 		data: {
 			company: ICompany
@@ -28,8 +24,6 @@ const MainPage = ({ subdomain }: { subdomain: string }) => {
 		<Layout>
 			<h4 className='text-2xl font-medium mb-2 text-gray-900'>ברוכים הבאים! {subdomain}</h4>
 			<p className='mb-4 text-gray-800'>אנא בחרו חברה לקביעת התור</p>
-
-			<SelectCompany companies={data && data.companies ? data.companies : []} />
 		</Layout>
 	)
 }
@@ -37,7 +31,15 @@ const MainPage = ({ subdomain }: { subdomain: string }) => {
 export const getServerSideProps: GetServerSideProps = async (context) => {
 	let subdomain = context.req.headers.host?.split('.')[0]
 
-	return { props: { subdomain } }
+	if (context.req.headers.host?.split('.').length === 1)
+		return {
+			redirect: {
+				destination: '/register',
+				permanent: false,
+			},
+		}
+
+	return { props: context.req.headers.host?.split('.').length !== 1 ? { subdomain } : {} }
 }
 
 export default MainPage

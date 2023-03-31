@@ -2,7 +2,7 @@ import type { IWeeklyHours, TDay } from '@/utils/models/User'
 import { useEffect, useMemo, useState } from 'react'
 import { TimeField } from '@mui/x-date-pickers'
 import { toast } from 'react-toastify'
-import { Button } from '@mui/material'
+import { Button, Switch } from '@mui/material'
 import dayjs, { Dayjs } from 'dayjs'
 import Axios from '@/utils/functions/Axios'
 import moment from 'moment'
@@ -28,7 +28,8 @@ const DaysSettings = ({ mutate, weeklyHours }: IProps) => {
 	useEffect(() => {
 		if (!weeklyHours) return
 
-		if (weeklyHours.length === 0) return setState(days.map((day) => ({ ...day, start: dayjs(), end: dayjs() })))
+		if (weeklyHours.length === 0)
+			return setState(days.map((day) => ({ ...day, start: dayjs(), end: dayjs(), disabled: false })))
 
 		const newState = days.map((day, index) => {
 			const dayHours = weeklyHours.find((dayHour) => dayHour.day === index)
@@ -36,6 +37,7 @@ const DaysSettings = ({ mutate, weeklyHours }: IProps) => {
 				...day,
 				start: dayHours?.start ? dayjs(dayHours.start, 'HH:mm') : null,
 				end: dayHours?.end ? dayjs(dayHours.end, 'HH:mm') : null,
+				disabled: dayHours?.disabled || false,
 			}
 		})
 
@@ -61,6 +63,7 @@ const DaysSettings = ({ mutate, weeklyHours }: IProps) => {
 				day: index as TDay,
 				start: moment(day.start!.toDate(), 'HH:mm').format('HH:mm'),
 				end: moment(day.end!.toDate(), 'HH:mm').format('HH:mm'),
+				disabled: day.disabled || false,
 			}))
 
 		try {
@@ -81,6 +84,11 @@ const DaysSettings = ({ mutate, weeklyHours }: IProps) => {
 		setState((prevState) => {
 			const newState = [...prevState!]
 			newState[index][type] = value
+			newState
+				.filter((day) => !day[type]?.isValid() && !day.disabled)
+				.forEach((day) => {
+					day[type] = value
+				})
 			return newState
 		})
 	}
@@ -99,21 +107,23 @@ const DaysSettings = ({ mutate, weeklyHours }: IProps) => {
 						onChange={(newVal) => handleChangeTime(index, 'start', newVal as Dayjs | null)}
 						format='HH:mm'
 						minutesStep={5}
-						disabled={
-							(weeklyHours?.[index].start === '00:00' && weeklyHours?.[index].end === '00:00') ||
-							(weeklyHours?.[index].start === null && weeklyHours?.[index].end === null) ||
-							isLoading
-						}
+						disabled={isLoading || (state && state[index].disabled) || false}
 					/>
 					<TimeField
 						label='שעת סיום'
 						value={state && state[index].end}
 						onChange={(newVal) => handleChangeTime(index, 'end', newVal as Dayjs | null)}
 						format='HH:mm'
-						disabled={
-							(weeklyHours?.[index].start === '00:00' && weeklyHours?.[index].end === '00:00') ||
-							(weeklyHours?.[index].start === null && weeklyHours?.[index].end === null) ||
-							isLoading
+						disabled={isLoading || (state && state[index].disabled) || false}
+					/>
+					<Switch
+						checked={(state && !state[index].disabled) || false}
+						onChange={(_, newValue) =>
+							setState((prevState) => {
+								const newState = [...prevState!]
+								newState[index] = { ...newState[index], start: null, end: null, disabled: !newValue }
+								return newState
+							})
 						}
 					/>
 				</div>
@@ -146,6 +156,7 @@ interface IState {
 	title: string
 	start: Dayjs | null
 	end: Dayjs | null
+	disabled: boolean
 }
 
 export default DaysSettings

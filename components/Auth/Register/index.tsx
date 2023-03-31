@@ -14,6 +14,7 @@ import useAuth from '@/utils/hooks/useAuth'
 const RegisterForm = () => {
 	const router = useRouter()
 
+	const [company, setCompany] = useState('')
 	const [name, setName] = useState('')
 	const [email, setEmail] = useState('')
 	const [password, setPassword] = useState('')
@@ -37,10 +38,11 @@ const RegisterForm = () => {
 	)
 
 	const [weeklyHours, setWeeklyHours] = useState<IState[]>(
-		days.map((day) => ({ ...day, start: dayjs(), end: dayjs() }))
+		days.map((day) => ({ ...day, start: null, end: null, disabled: false }))
 	)
 
 	const handleSubmitStep1 = () => {
+		if (!company) return toast.error('יש להזין שם חברה')
 		if (!name) return toast.error('יש להזין שם מלא')
 		if (!email) return toast.error('יש כתובת אימייל תקינה')
 		if (!password) return toast.error('יש להזין סיסמא')
@@ -54,17 +56,13 @@ const RegisterForm = () => {
 	const handleSubmitStep2 = async () => {
 		setIsLoading(true)
 
-		if (weeklyHours?.some((day) => day.start!.isAfter(day.end!))) {
+		if (weeklyHours?.some((day) => !day.disabled && day.start!.isAfter(day.end!))) {
 			setIsLoading(false)
 			return toast.error('שעת התחלה לא יכולה להיות אחרי שעת הסיום')
 		}
 
-		if (weeklyHours?.some((day) => !day.start || !day.end)) {
-			setIsLoading(false)
-			return toast.error('יש לבחור שעת התחלה ושעת סיום לכל יום')
-		}
-
 		const data: IRegisterCompany = {
+			company,
 			name,
 			email,
 			password,
@@ -72,8 +70,9 @@ const RegisterForm = () => {
 				weeklyHours &&
 				weeklyHours.map((day, index) => ({
 					day: index as TDay,
-					start: moment(day.start!.toDate(), 'HH:mm').format('HH:mm'),
-					end: moment(day.end!.toDate(), 'HH:mm').format('HH:mm'),
+					start: day.start ? moment(day.start.toDate(), 'HH:mm').format('HH:mm') : '00:00',
+					end: day.end ? moment(day.end.toDate(), 'HH:mm').format('HH:mm') : '00:00',
+					disabled: day.disabled || false,
 				})),
 		}
 
@@ -113,6 +112,8 @@ const RegisterForm = () => {
 								password={password}
 								setPassword={setPassword}
 								handleSubmit={handleSubmitStep1}
+								company={company}
+								setCompany={setCompany}
 							/>
 						)}
 
@@ -132,15 +133,35 @@ const RegisterForm = () => {
 	)
 }
 
-const Step1 = ({ name, setName, email, setEmail, password, setPassword, handleSubmit }: IStep1) => {
+const Step1 = ({
+	name,
+	setName,
+	company,
+	setCompany,
+	email,
+	setEmail,
+	password,
+	setPassword,
+	handleSubmit,
+}: IStep1) => {
 	return (
 		<div className='flex flex-col items-center justify-center w-full gap-4 p-4 mt-4'>
 			<TextField
-				value={name}
-				onChange={(e) => setName(e.target.value)}
+				value={company}
+				onChange={(e) => setCompany(e.target.value)}
 				label='שם החברה'
 				color='primary'
 				variant='outlined'
+				size='small'
+				fullWidth
+			/>
+			<TextField
+				value={name}
+				onChange={(e) => setName(e.target.value)}
+				label='שם משתמש'
+				color='primary'
+				variant='outlined'
+				type='email'
 				size='small'
 				fullWidth
 			/>
@@ -177,6 +198,8 @@ const Step1 = ({ name, setName, email, setEmail, password, setPassword, handleSu
 }
 
 interface IStep1 {
+	company: string
+	setCompany: (company: string) => void
 	name: string
 	setName: (name: string) => void
 	email: string

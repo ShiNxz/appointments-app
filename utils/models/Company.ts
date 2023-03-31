@@ -27,6 +27,7 @@ const CompanySchema = new Schema(
 				},
 				start: String,
 				end: String,
+				disabled: Boolean,
 			},
 		],
 

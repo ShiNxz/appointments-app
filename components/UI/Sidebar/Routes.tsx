@@ -3,11 +3,6 @@ import { BiHomeAlt } from 'react-icons/bi'
 
 const Routes: Route[] = [
 	{
-		path: '/',
-		title: 'זימון תורים',
-		icon: BiHomeAlt,
-	},
-	{
 		path: '/admin',
 		title: 'ניהול זמני פעילות והפסקות',
 		icon: BiHomeAlt,

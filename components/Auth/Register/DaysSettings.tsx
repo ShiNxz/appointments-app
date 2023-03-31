@@ -1,6 +1,6 @@
 import type { Dayjs } from 'dayjs'
 import { TimeField } from '@mui/x-date-pickers'
-import { Button } from '@mui/material'
+import { Button, Switch } from '@mui/material'
 
 const DaysSettings = ({ days, state, setState, isLoading, handleSubmit }: IProps) => {
 	const handleChangeTime = (index: number, type: 'start' | 'end', value: Dayjs | null) => {
@@ -9,6 +9,11 @@ const DaysSettings = ({ days, state, setState, isLoading, handleSubmit }: IProps
 		setState((prevState) => {
 			const newState = [...prevState!]
 			newState[index][type] = value
+			newState
+				.filter((day) => !day[type]?.isValid() && !day.disabled)
+				.forEach((day) => {
+					day[type] = value
+				})
 			return newState
 		})
 	}
@@ -27,7 +32,7 @@ const DaysSettings = ({ days, state, setState, isLoading, handleSubmit }: IProps
 						onChange={(newVal) => handleChangeTime(index, 'start', newVal as Dayjs | null)}
 						format='HH:mm'
 						minutesStep={5}
-						disabled={isLoading}
+						disabled={isLoading || (state && state[index].disabled)}
 						size='small'
 					/>
 					<TimeField
@@ -35,8 +40,18 @@ const DaysSettings = ({ days, state, setState, isLoading, handleSubmit }: IProps
 						value={state && state[index].end}
 						onChange={(newVal) => handleChangeTime(index, 'end', newVal as Dayjs | null)}
 						format='HH:mm'
-						disabled={isLoading}
+						disabled={isLoading || (state && state[index].disabled)}
 						size='small'
+					/>
+					<Switch
+						checked={state && !state[index].disabled}
+						onChange={(_, newValue) =>
+							setState((prevState) => {
+								const newState = [...prevState!]
+								newState[index] = { ...newState[index], start: null, end: null, disabled: !newValue }
+								return newState
+							})
+						}
 					/>
 				</div>
 			))}
@@ -72,6 +87,7 @@ export interface IState {
 	title: string
 	start: Dayjs | null
 	end: Dayjs | null
+	disabled: boolean
 }
 
 export default DaysSettings

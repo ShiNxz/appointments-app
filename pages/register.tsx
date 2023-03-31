@@ -4,16 +4,19 @@ import useAuth from '@/utils/hooks/useAuth'
 import { useRouter } from 'next/router'
 
 const MainPage = () => {
-	const { isLoggedIn } = useAuth()
+	const { isLoggedIn, isLoading } = useAuth()
 	const router = useRouter()
 
-	if (isLoggedIn) return router.push('/')
+	if (isLoggedIn) router.push('/admin')
 
 	return (
-		<>
-			<Head title='הרשמה' />
-			<RegisterForm />
-		</>
+		!isLoggedIn &&
+		!isLoading && (
+			<>
+				<Head title='הרשמה' />
+				<RegisterForm />
+			</>
+		)
 	)
 }
 

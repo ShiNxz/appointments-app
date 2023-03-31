@@ -14,22 +14,22 @@ const NewBreak = () => {
 	const [isLoading, setIsLoading] = useState(false)
 
 	const [day, setDay] = useState<TDay>(0)
-	const [start, setStart] = useState<Dayjs>(dayjs())
-	const [end, setEnd] = useState<Dayjs>(dayjs())
+	const [start, setStart] = useState<Dayjs | null>(null)
+	const [end, setEnd] = useState<Dayjs | null>(null)
 
 	const handleChangeDay = (event: SelectChangeEvent<TDay>) => setDay(event.target.value as TDay)
 
 	const handleSubmit = async () => {
 		setIsLoading(true)
 
-		if (start.isAfter(end)) {
-			setIsLoading(false)
-			return toast.error('שעת התחלה לא יכולה להיות אחרי שעת הסיום')
-		}
-
 		if (!start || !end) {
 			setIsLoading(false)
 			return toast.error('יש לבחור שעת התחלה ושעת סיום לכל יום')
+		}
+
+		if (start.isAfter(end)) {
+			setIsLoading(false)
+			return toast.error('שעת התחלה לא יכולה להיות אחרי שעת הסיום')
 		}
 
 		const data: IBreakData = {

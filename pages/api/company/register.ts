@@ -10,6 +10,7 @@ export interface RegisterCompanyBody extends NextApiRequest {
 }
 
 export interface IRegisterCompany {
+	company: string
 	name: string
 	email: string
 	password: string
@@ -23,12 +24,13 @@ const handler = async (req: RegisterCompanyBody, res: NextApiResponse) => {
 
 	switch (method) {
 		case 'POST': {
+			if (!req.body.company) return res.status(400).json({ success: false, error: 'שם החברה חסר' })
 			if (!req.body.name) return res.status(400).json({ success: false, error: 'שם החברה חסר' })
 			if (!req.body.email) return res.status(400).json({ success: false, error: 'כתובת האימייל חסרה' })
 			if (!req.body.password) return res.status(400).json({ success: false, error: 'הסיסמה חסרה' })
 			if (!req.body.weeklyHours) return res.status(400).json({ success: false, error: 'שעות הפעילות חסרות' })
 
-			let { name, email, password, weeklyHours } = req.body
+			let { company: companyName, name, email, password, weeklyHours } = req.body
 
 			if (
 				await User.findOne({
@@ -38,7 +40,7 @@ const handler = async (req: RegisterCompanyBody, res: NextApiResponse) => {
 				return res.status(400).json({ success: false, error: 'המשתמש או החברה כבר קיימים במערכת' })
 
 			const company = await Company.create({
-				name,
+				name: companyName,
 				weeklyHours,
 				users: [],
 			})

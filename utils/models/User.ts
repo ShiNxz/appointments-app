@@ -25,6 +25,7 @@ export interface IWeeklyHours {
 	day: TDay // 0 - Sunday, 1 - Monday, etc.
 	start: string // 10:00
 	end: string // 17:00
+	disabled: boolean
 }
 
 export interface IBreak {
@@ -90,6 +91,7 @@ const UserSchema = new Schema(
 				},
 				start: String,
 				end: String,
+				disabled: Boolean,
 			},
 		],
 

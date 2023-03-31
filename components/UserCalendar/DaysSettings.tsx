@@ -2,7 +2,7 @@ import type { IWeeklyHours, TDay } from '@/utils/models/User'
 import { useEffect, useMemo, useState } from 'react'
 import { TimeField } from '@mui/x-date-pickers'
 import { toast } from 'react-toastify'
-import { Button } from '@mui/material'
+import { Button, Switch } from '@mui/material'
 import dayjs, { Dayjs } from 'dayjs'
 import Axios from '@/utils/functions/Axios'
 import moment from 'moment'
@@ -28,14 +28,18 @@ const DaysSettings = ({ mutate, weeklyHours, companyWeeklyHours }: IProps) => {
 	useEffect(() => {
 		if (!weeklyHours) return
 
-		if (weeklyHours.length === 0) return setState(days.map((day) => ({ ...day, start: dayjs(), end: dayjs() })))
+		if (weeklyHours.length === 0)
+			return setState(days.map((day) => ({ ...day, start: null, end: null, disabled: false })))
 
 		const newState = days.map((day, index) => {
 			const dayHours = weeklyHours.find((dayHour) => dayHour.day === index)
+			if (!dayHours) return { ...day, start: null, end: null, disabled: false }
+
 			return {
 				...day,
 				start: dayHours?.start ? dayjs(dayHours.start, 'HH:mm') : null,
 				end: dayHours?.end ? dayjs(dayHours.end, 'HH:mm') : null,
+				disabled: dayHours.disabled,
 			}
 		})
 
@@ -69,13 +73,13 @@ const DaysSettings = ({ mutate, weeklyHours, companyWeeklyHours }: IProps) => {
 			return toast.error('הזמנים שבחרת חורגים מזמני העבודה של החברה')
 		}
 
-
 		const data: IWeeklyHours[] | null =
 			state &&
 			state.map((day, index) => ({
 				day: index as TDay,
 				start: moment(day.start!.toDate(), 'HH:mm').format('HH:mm'),
 				end: moment(day.end!.toDate(), 'HH:mm').format('HH:mm'),
+				disabled: day.disabled,
 			}))
 
 		try {
@@ -96,6 +100,11 @@ const DaysSettings = ({ mutate, weeklyHours, companyWeeklyHours }: IProps) => {
 		setState((prevState) => {
 			const newState = [...prevState!]
 			newState[index][type] = value
+			newState
+				.filter((day) => !day[type]?.isValid() && !day.disabled)
+				.forEach((day) => {
+					day[type] = value
+				})
 			return newState
 		})
 	}
@@ -110,25 +119,35 @@ const DaysSettings = ({ mutate, weeklyHours, companyWeeklyHours }: IProps) => {
 					<div className='w-20'>{day.title}</div>
 					<TimeField
 						label='שעת התחלה'
-						value={state && state[index].start}
+						value={(state && state[index].start) || null}
 						onChange={(newVal) => handleChangeTime(index, 'start', newVal as Dayjs | null)}
 						format='HH:mm'
 						minutesStep={5}
 						disabled={
-							(weeklyHours?.[index].start === '00:00' && weeklyHours?.[index].end === '00:00') ||
-							(weeklyHours?.[index].start === null && weeklyHours?.[index].end === null) ||
-							isLoading
+							// (weeklyHours?.[index].start === '00:00' && weeklyHours?.[index].end === '00:00') ||
+							// (weeklyHours?.[index].start === null && weeklyHours?.[index].end === null) ||
+							(state && state[index].disabled) || isLoading
 						}
 					/>
 					<TimeField
 						label='שעת סיום'
-						value={state && state[index].end}
+						value={(state && state[index].end) || null}
 						onChange={(newVal) => handleChangeTime(index, 'end', newVal as Dayjs | null)}
 						format='HH:mm'
 						disabled={
-							(weeklyHours?.[index].start === '00:00' && weeklyHours?.[index].end === '00:00') ||
-							(weeklyHours?.[index].start === null && weeklyHours?.[index].end === null) ||
-							isLoading
+							// (weeklyHours?.[index].start === '00:00' && weeklyHours?.[index].end === '00:00') ||
+							// (weeklyHours?.[index].start === null && weeklyHours?.[index].end === null) ||
+							(state && state[index].disabled) || isLoading
+						}
+					/>
+					<Switch
+						checked={state && !state[index].disabled || false}
+						onChange={(_, newValue) =>
+							setState((prevState) => {
+								const newState = [...prevState!]
+								newState[index] = { ...newState[index], start: null, end: null, disabled: !newValue }
+								return newState
+							})
 						}
 					/>
 				</div>
@@ -162,6 +181,7 @@ interface IState {
 	title: string
 	start: Dayjs | null
 	end: Dayjs | null
+	disabled: boolean
 }
 
 export default DaysSettings
