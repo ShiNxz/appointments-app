@@ -34,10 +34,10 @@ const MainPage = ({ subdomain }: { subdomain: string }) => {
 	)
 }
 
-// export const getServerSideProps: GetServerSideProps = async (context) => {
-// 	let subdomain = context.req.headers.host?.split('.')[0]
+export const getServerSideProps: GetServerSideProps = async (context) => {
+	let subdomain = context.req.headers.host?.split('.')[0]
 
-// 	return { props: { subdomain } }
-// }
+	return { props: { subdomain } }
+}
 
 export default MainPage
