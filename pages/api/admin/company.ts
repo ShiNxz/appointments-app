@@ -41,7 +41,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 			if (!company) return res.status(404).json({ success: false })
 
 			company.weeklyHours = days
-			
+
 			await company.save()
 
 			return res.status(200).json({ success: true })

@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
-import type { ISpecialDate, IWeeklyHours } from '@/utils/models/User'
+import type { IBreak, ISpecialDate, IWeeklyHours } from '@/utils/models/User'
 import db from '@/utils/db'
 import FormatDate from '@/utils/functions/FormatDate'
 import AuthMiddleware, { IDBUser } from '@/utils/middlewares/Auth'
@@ -47,9 +47,9 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 			return res.status(200).json({ success: true })
 		}
 
-		// WEEKLY HOURS
+		// WEEKLY HOURS AND BREAKS
 		case 'PUT': {
-			const days = req.body as IWeeklyHours[]
+			const { days, breaks } = req.body as { days: IWeeklyHours[]; breaks: IBreak[] }
 
 			const user = (await AuthMiddleware(req, res)) as IDBUser
 			if (!user) return
@@ -58,6 +58,10 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 			if (!dbUser) return res.status(404).json({ success: false, error: 'לא נמצא משתמש קיים עם הפרטים שנרשמו!' })
 
 			dbUser.weeklyHours = days
+			dbUser.breaks = breaks
+
+			console.log(breaks)
+
 			await dbUser.save()
 
 			return res.status(200).json({ success: true })

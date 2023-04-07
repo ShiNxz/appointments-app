@@ -1,7 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
-import type { ISpecialDate, IWeeklyHours, TDay } from '@/utils/models/User'
+import type { TDay } from '@/utils/models/User'
 import db from '@/utils/db'
-import FormatDate from '@/utils/functions/FormatDate'
 import AuthMiddleware, { IDBUser } from '@/utils/middlewares/Auth'
 import User from '@/utils/models/User'
 

@@ -25,6 +25,7 @@ const MainPage = () => {
 				<DaysSettings
 					weeklyHours={data ? (data && data.user && data.user.weeklyHours) || [] : null}
 					companyWeeklyHours={data ? (data && data.company && data.company.weeklyHours) || [] : null}
+					breaks={data ? (data && data.user && data.user.breaks) || [] : null}
 					mutate={mutate}
 				/>
 
