@@ -25,6 +25,14 @@ const WorkersTable = ({ workers, mutate }: IProps) => {
 							צפייה בתורים ופעילות
 						</Button>
 						<Button
+							color='info'
+							variant='contained'
+							size='small'
+							onClick={() => router.push(`/admin/workers/times/${params.row.id}`)}
+						>
+							עריכת זמני פעילות
+						</Button>
+						<Button
 							color='primary'
 							variant='contained'
 							size='small'

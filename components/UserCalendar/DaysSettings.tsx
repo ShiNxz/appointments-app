@@ -7,7 +7,7 @@ import dayjs, { Dayjs } from 'dayjs'
 import Axios from '@/utils/functions/Axios'
 import moment from 'moment'
 
-const DaysSettings = ({ mutate, weeklyHours, companyWeeklyHours, breaks }: IProps) => {
+const DaysSettings = ({ mutate, weeklyHours, companyWeeklyHours, breaks, userId }: IProps) => {
 	const [isLoading, setIsLoading] = useState(false)
 
 	const days: IDay[] = useMemo(
@@ -125,12 +125,12 @@ const DaysSettings = ({ mutate, weeklyHours, companyWeeklyHours, breaks }: IProp
 		}
 
 		try {
-			await Axios.put('/api/admin/user/times', data)
+			await Axios.put(userId ? `/api/admin/workers/${userId}` : '/api/admin/user/times', data)
 
-			toast.success('זמני העבודה נקבעו בהצלחה')
+			toast.success(userId ? 'זמני הפעילות של העובד נקבעו בהצלחה!' : 'זמני העבודה נקבעו בהצלחה')
 			await mutate()
 		} catch (error) {
-			toast.error('אירעה שגיאה בעת קביעת זמני העבודה')
+			toast.error(userId ? 'אירעה שגיאה בעת קביעת זמני העבודה של העובד!' : 'אירעה שגיאה בעת קביעת זמני העבודה')
 		}
 
 		setIsLoading(false)
@@ -271,7 +271,7 @@ const DaysSettings = ({ mutate, weeklyHours, companyWeeklyHours, breaks }: IProp
 						size='small'
 						onClick={() => handleAddBreak(dayIndex)}
 						disabled={(state && state[dayIndex].disabled) || isLoading}
-						className='mb-2 !w-auto'
+						className='!mb-4 !w-52'
 					>
 						הוספת הפסקה
 					</Button>
@@ -295,6 +295,7 @@ interface IProps {
 	companyWeeklyHours: IWeeklyHours[] | null
 	breaks: IBreak[] | null
 	mutate: () => Promise<void>
+	userId?: string
 }
 
 interface IDay {

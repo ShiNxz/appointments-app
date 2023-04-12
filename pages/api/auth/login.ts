@@ -25,7 +25,7 @@ const handler = async (req: LoginBody, res: NextApiResponse) => {
 
 			const user = await User.findOne({ email })
 			if (!user) return res.status(401).json({ success: false, error: 'לא נמצא משתמש קיים עם הפרטים שנרשמו!' })
-			console.log(user.password, password)
+
 			if (password === user.password) {
 				const token = jwt.sign(
 					{

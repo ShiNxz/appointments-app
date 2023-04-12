@@ -25,7 +25,8 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 			if (req.cookies.token) {
 				try {
 					decoded = jwt.verify(req.cookies.token, process.env.JWT_SECRET as string) as IDecodedUser
-					let user = await User.findOne({ _id: decoded._id })
+					console.log(decoded)
+					let user = await User.findById(decoded._id)
 					if (!user) return res.status(401).json({ success: false, error: 'Unable to auth' })
 
 					const company = await Company.findOne({ _id: user.company }).select('name')

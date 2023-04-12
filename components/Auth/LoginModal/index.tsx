@@ -6,6 +6,24 @@ import useAuth from '@/utils/hooks/useAuth'
 import { toast } from 'react-toastify'
 
 const LoginModal = ({ loginModal, setLoginModal }: IProps) => {
+	return (
+		<Dialog
+			open={loginModal}
+			onClose={() => setLoginModal(false)}
+			fullWidth
+		>
+			<DialogTitle>התחברות</DialogTitle>
+			<DialogContent>
+				<LoginContainer setLoginModal={setLoginModal} />
+			</DialogContent>
+			<DialogActions>
+				<Button onClick={() => setLoginModal(false)}>ביטול</Button>
+			</DialogActions>
+		</Dialog>
+	)
+}
+
+export const LoginContainer = ({ setLoginModal }: ILoginContainerProps) => {
 	const { mutate } = useAuth()
 
 	const [isLoading, setIsLoading] = useState(false)
@@ -29,7 +47,7 @@ const LoginModal = ({ loginModal, setLoginModal }: IProps) => {
 			toast.success('התחברת בהצלחה!')
 			Cookies.set('token', data.token, { expires: 7 })
 			await mutate()
-			setLoginModal(false)
+			setLoginModal && setLoginModal(false)
 		} catch (error) {
 			toast.error('אחד או יותר מהפרטים שגוי!')
 		}
@@ -37,63 +55,50 @@ const LoginModal = ({ loginModal, setLoginModal }: IProps) => {
 	}
 
 	return (
-		<Dialog
-			open={loginModal}
-			onClose={isLoading ? undefined : () => setLoginModal(false)}
-			fullWidth
+		<form
+			onSubmit={handleSubmit}
+			className='flex flex-col'
 		>
-			<DialogTitle>התחברות</DialogTitle>
-			<DialogContent>
-				<form
-					onSubmit={handleSubmit}
-					className='flex flex-col'
-				>
-					<TextField
-						id='phone'
-						label='מספר טלפון'
-						variant='outlined'
-						onChange={(e) => setEmail(e.target.value)}
-						value={email}
-						margin='normal'
-						type='text'
-						disabled={isLoading}
-					/>
+			<TextField
+				id='email'
+				label='אימייל'
+				variant='outlined'
+				onChange={(e) => setEmail(e.target.value)}
+				value={email}
+				margin='normal'
+				type='text'
+				disabled={isLoading}
+			/>
 
-					<TextField
-						id='password'
-						label='סיסמה'
-						variant='outlined'
-						onChange={(e) => setPassword(e.target.value)}
-						value={password}
-						margin='normal'
-						type='password'
-						disabled={isLoading}
-					/>
+			<TextField
+				id='password'
+				label='סיסמה'
+				variant='outlined'
+				onChange={(e) => setPassword(e.target.value)}
+				value={password}
+				margin='normal'
+				type='password'
+				disabled={isLoading}
+			/>
 
-					<div className='my-2' />
+			<div className='my-2' />
 
-					<Button
-						className='!w-full my-4'
-						disabled={isLoading}
-						type='submit'
-						color='secondary'
-						variant='contained'
-						size='medium'
-					>
-						{isLoading ? 'אנא המתן...' : 'התחברות'}
-					</Button>
-				</form>
-			</DialogContent>
-			<DialogActions>
-				<Button
-					onClick={() => setLoginModal(false)}
-					disabled={isLoading}
-				>
-					ביטול
-				</Button>
-			</DialogActions>
-		</Dialog>
+			<Button
+				className='!w-full my-4'
+				disabled={isLoading}
+				type='submit'
+				color='secondary'
+				variant='contained'
+				size='medium'
+			>
+				{isLoading ? 'אנא המתן...' : 'התחברות'}
+			</Button>
+		</form>
 	)
+}
+
+interface ILoginContainerProps {
+	setLoginModal?: React.Dispatch<React.SetStateAction<boolean>>
 }
 
 interface IProps {

@@ -5,6 +5,8 @@ import useSWR from 'swr'
 import fetcher from '@/utils/functions/Fetcher'
 
 import AdminDays from '@/components/Admin/Weekly'
+import useAuth from '@/utils/hooks/useAuth'
+import { useRouter } from 'next/router'
 
 const MainPage = () => {
 	const { data, mutate } = useSWR('/api/admin/company', fetcher) as {
@@ -14,7 +16,9 @@ const MainPage = () => {
 		mutate: () => Promise<void>
 	}
 
-	return (
+	const { isLoggedIn } = useAuth()
+
+	return isLoggedIn && (
 		<Layout>
 			<h4 className='text-3xl font-medium mb-1 text-gray-900'>ניהול זמני פעילות חברה</h4>
 			<p className='mb-6 text-gray-600'>...</p>
