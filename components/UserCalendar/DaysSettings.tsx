@@ -117,8 +117,8 @@ const DaysSettings = ({ mutate, weeklyHours, companyWeeklyHours, breaks, userId 
 		const data: { days: IWeeklyHours[]; breaks: IBreak[] } = {
 			days: state.map((day, index) => ({
 				day: index as TDay,
-				start: moment(day.start!.toDate(), 'HH:mm').format('HH:mm'),
-				end: moment(day.end!.toDate(), 'HH:mm').format('HH:mm'),
+				start: day.disabled ? '' : moment(day.start!.toDate(), 'HH:mm').format('HH:mm'),
+				end: day.disabled ? '' : moment(day.end!.toDate(), 'HH:mm').format('HH:mm'),
 				disabled: day.disabled,
 			})),
 			breaks: newBreaks || [],

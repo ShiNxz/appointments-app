@@ -4,7 +4,7 @@ import type { IUser } from '@/utils/models/User'
 import { useState } from 'react'
 
 import FullCalendar from '@fullcalendar/react'
-import interactionPlugin from '@fullcalendar/interaction'
+import interactionPlugin, { DateClickArg } from '@fullcalendar/interaction'
 import dayGridPlugin from '@fullcalendar/daygrid'
 
 import CalendarModal from './Modal'
@@ -28,15 +28,21 @@ const renderEventContent = (eventContent: EventContentArg) => {
 const CalendarDiv = ({ user, mutate }: IProps) => {
 	const [selectedDate, setSelectedDate] = useState<Date | null>(null)
 
-	const handleDateSelect = (arg: DateSelectArg) => {
-		if (!isCanSelectDate(new Date(arg.start))) return
-		setSelectedDate(arg.start)
+	const handleDateSelect = (arg: DateClickArg) => {
+		if (!isCanSelectDate(new Date(arg.date))) return
+		setSelectedDate(arg.date)
 	}
 
 	const workingDays = GenerateWorkingDates(user.weeklyHours, user.specialDates, user.appointments, user.breaks)
 
 	const isCanSelectDate = (date: Date) =>
-		(workingDays && workingDays.some((d) => FormatDate(new Date(d.start)) === FormatDate(new Date(date)))) || false
+		(workingDays &&
+			workingDays.some(
+				(d) =>
+					FormatDate(new Date(d.start)) === FormatDate(new Date(date)) &&
+					moment(d.start).format('HH:mm') !== '00:00'
+			)) ||
+		false
 
 	const avDates =
 		(selectedDate &&
@@ -111,7 +117,7 @@ const CalendarDiv = ({ user, mutate }: IProps) => {
 				eventContent={renderEventContent}
 				locale='he'
 				direction='rtl'
-				select={handleDateSelect}
+				dateClick={handleDateSelect}
 				viewClassNames='bg-white'
 				dayCellClassNames={renderCell}
 			/>

@@ -6,7 +6,6 @@ import fetcher from '@/utils/functions/Fetcher'
 
 import ManageCalendar from '@/components/ManageCalendar'
 import useAuth from '@/utils/hooks/useAuth'
-import { useRouter } from 'next/router'
 
 const MainPage = () => {
 	const { data, mutate } = useSWR('/api/admin/user', fetcher) as {

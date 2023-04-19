@@ -46,13 +46,13 @@ const DaysSettings = ({ mutate, weeklyHours }: IProps) => {
 
 	const handleSubmit = async () => {
 		setIsLoading(true)
-
-		if (state?.some((day) => day.start!.isAfter(day.end!))) {
+		console.log(state)
+		if (state?.some((day) => !day.disabled && day.start!.isAfter(day.end!))) {
 			setIsLoading(false)
 			return toast.error('שעת התחלה לא יכולה להיות אחרי שעת הסיום')
 		}
 
-		if (state?.some((day) => !day.start || !day.end)) {
+		if (state?.some((day) => !day.disabled && (!day.start || !day.end))) {
 			setIsLoading(false)
 			return toast.error('יש לבחור שעת התחלה ושעת סיום לכל יום')
 		}
@@ -61,8 +61,8 @@ const DaysSettings = ({ mutate, weeklyHours }: IProps) => {
 			state &&
 			state.map((day, index) => ({
 				day: index as TDay,
-				start: moment(day.start!.toDate(), 'HH:mm').format('HH:mm'),
-				end: moment(day.end!.toDate(), 'HH:mm').format('HH:mm'),
+				start: day.disabled ? '' : moment(day.start!.toDate(), 'HH:mm').format('HH:mm'),
+				end: day.disabled ? '' : moment(day.end!.toDate(), 'HH:mm').format('HH:mm'),
 				disabled: day.disabled || false,
 			}))
 
